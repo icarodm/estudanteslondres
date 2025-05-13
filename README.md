@@ -1,7 +1,7 @@
-Análise de banco de dados de estudantes em região central de Londres.
+# Análise de banco de dados de estudantes em região central de Londres.
 
 
-#data.txt contém os dados analisádos, cujo vou dar breve descrição a seguir:
+## data.txt contém os dados analisados, seguindo breve descrição:
 
 A base de dados contém informações de 4.059 estudantes de 65 escolas na região central de Londres, com 10 variáveis, sendo elas:
 1) school: Identificador da escola do estudante.
