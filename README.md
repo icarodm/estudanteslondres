@@ -1,7 +1,8 @@
 # Análise de banco de dados de estudantes em região central de Londres.
 
+Toda a análise foi feita utilizando Rstudio e linguagem R auxiliada por alguns pacotes como ggplot2 e dplyr.
 
-## data.txt contém os dados analisados, seguindo breve descrição:
+## 📁 data.txt contém os dados analisados, seguindo breve descrição:
 
 A base de dados contém informações de 4.059 estudantes de 65 escolas na região central de Londres, com 10 variáveis, sendo elas:
 1) school: Identificador da escola do estudante.
