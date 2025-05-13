@@ -1,0 +1,180 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, include=FALSE}
+include=FALSE
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+
+```
+
+# Estudo de caso escolar na região de Londres
+
+#### Começaremos com uma exploração de dados para conhecimento geral, para as variáveis numéricas achei interessante apresentar boxplots, assim podemos visualizarmos possíveis outliers.
+
+```{r}
+data = read.csv("C:/ProjetosR/Exam.txt", sep = "\t")
+library(ggplot2)
+library(dplyr)
+
+boxplot(data$normexam, main = "Boxplot da Pontuação Normalizada", ylab = "Pontuação", col = "orange")
+```
+
+```{r}
+
+boxplot(data$standLRT, main = "Boxplot da Pontuação do Teste RL", ylab = "Pontuação", col = "orange")
+```
+
+### Partindo para as variáveis categóricas separei em alguns gráficos de barras para termos uma visão geral dos dados apresentados no banco, é interessante para visualizarmos a proporção de cada variável também.
+
+```{r}
+ggplot(data, aes(x = sex)) + 
+  geom_bar(aes(fill = sex)) + 
+  labs(title = "Distribuição do Sexo dos Estudantes", 
+       x = "Sexo", 
+       y = "Contagem") +
+  scale_fill_manual(values = c("F" = "pink", "M" = "lightblue"), 
+                    labels = c("F" = "Mulher", "M" = "Homem")) +
+scale_x_discrete(labels = c("F" = "Mulher", "M" = "Homem")) +
+  theme_minimal()
+
+ggplot(data, aes(x = schgend)) + 
+  geom_bar(aes(fill = schgend)) + 
+  labs(title = "Distribuição do Gênero da Escola", x = "Gênero da Escola", y = "Contagem") +
+  scale_fill_manual(values = c("boys" = "blue", "girls" = "pink", "mixed" = "purple"), 
+                    labels = c("boys" = "Meninos", "girls" = "Meninas", "mixed" = "Ambos")) + 
+  scale_x_discrete(labels = c("boys" = "Meninos", "girls" = "Meninas", "mixed" = "Ambos")) +  
+  theme_minimal()
+
+ggplot(data, aes(x = vr)) + 
+  geom_bar(aes(fill = vr)) + 
+  labs(title = "Distribuição da Faixa de Pontuação de Raciocínio Verbal", x = "Faixa de Pontuação", y = "Contagem") +
+  scale_fill_manual(values = c("bottom 25%" = "red", "mid 50%" = "yellow", "top 25%" = "green"), 
+                    labels = c("bottom 25%" = "25% Inferior", "mid 50%" = "50% Central", "top 25%" = "25% Superior")) + 
+  scale_x_discrete(labels = c("bottom 25%" = "25% Inferior", "mid 50%" = "50% Central", "top 25%" = "25% Superior")) +  
+  theme_minimal()
+
+ggplot(data, aes(x = type)) + 
+  geom_bar(aes(fill = type)) + 
+  labs(title = "Distribuição do Tipo de Escola", x = "Tipo de Escola", y = "Contagem") +
+  scale_fill_manual(values = c("Mxd" = "gray", "Sngl" = "brown"), 
+                    labels = c("Mxd" = "Mista", "Sngl" = "Única")) + 
+  scale_x_discrete(labels = c("Mxd" = "Mista", "Sngl" = "Única")) +  
+  theme_minimal()
+
+```
+
+### Agora que finalizamos a análise exploratória inicial, partirei para algumas análises mais específicas e objetivas, para tentarmos encontrar padrões entre algumas variáveis.
+
+Começarei relacionando diversas variáveis com a variável "normexam", para visualizarmos quais tem relação com a nota dos alunos serem mais altas/baixas.
+
+```{r}
+ggplot(data, aes(x = sex, y = normexam, fill = sex)) + 
+  geom_boxplot() + 
+  labs(title = "Distribuição das Notas por Gênero", x = "Gênero", y = "Pontuação Normalizada") + 
+  scale_x_discrete(labels = c("F" = "Mulher", "M" = "Homem")) +
+  scale_fill_manual(values = c("F" = "pink", "M" = "blue"), labels = c("F" = "Mulher", "M" = "Homem")) +
+  theme_minimal()
+```
+
+Aqui, notamos que as meninas tem a média de notas um pouco maior que os meninos, além de alguns outliers superiores e inferiores. os meninos apresentaram apenas dois outliers inferiores, e nenhum superior.
+
+```{r}
+ggplot(data, aes(x = type, y = normexam, fill = type)) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Mxd" = "Mista", "Sngl" = "Única")) +
+  scale_fill_manual(values = c("Mxd" = "#009E73", "Sngl" = "#D55E00"), labels = c("Mista", "Única")) +
+  labs(title = "Distribuição das Notas por Tipo de Escola", x = "Tipo de Escola", y = "Nota Normalizada") +
+  theme_minimal()
+```
+
+Aqui perecebemos que o tipo de escola de gênero único tem a média da nota um pouco superior, isso pode se dar por algum fator de ensino mais controlado ou de maior qualidade acerca desse tipo de escola. Também vemos alguns outliers presentes tanto nas escolas de gênero misto quanto único.
+
+```{r}
+ggplot(data, aes(x = schgend, y = normexam, fill = schgend)) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("mixed" = "Ambos", "boys" = "Meninos", "girls" = "Meninas")) +
+  scale_fill_manual(values = c("mixed" = "#0072B2", "boys" = "#E69F00", "girls" = "#D55E00"), labels = c("Ambos", "Meninos", "Meninas")) +
+  labs(title = "Distribuição das Notas por Gênero da Escola", x = "Gênero da Escola", y = "Nota Normalizada") +
+  theme_minimal()
+```
+
+Aqui vemos uma semelhança muito grande entre as escolas de meninos e meninas, mas percebe-se que tem uma média maior quando comparado com escolas que misturam os gêneros, como pudemos perceber também no gráfico anterior. Escolas de meninas tem vários outliers superior/inferior.
+
+```{r}
+ggplot(data, aes(x = vr, y = normexam, fill = vr)) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("bottom 25%" = "25% Inferior", "mid 50%" = "50% Central", "top 25%" = "25% Superior")) +
+  scale_fill_manual(values = c("bottom 25%" = "#F8766D", "mid 50%" = "#00BA38", "top 25%" = "#619CFF"),
+                    labels = c("25% Inferior", "50% Central", "25% Superior")) +
+  labs(title = "Notas por Faixa de Raciocínio Verbal", x = "Faixa de VR", y = "Nota Normalizada") +
+  theme_minimal()
+
+#Teste de correlação Pearson
+data$vr_numeric <- as.numeric(factor(data$vr, levels = c("bottom 25%", "mid 50%", "top 25%"), labels = c(1, 2, 3)))
+cor_test <- cor.test(data$normexam, data$vr_numeric, method = "pearson")
+cor_test
+
+```
+
+Aqui percebemos uma relação interessante entre o teste VR e a nota média dos alunos. É notável que quanto maior a nota no teste VR, a nota média do aluno também é maior. Isso se deve pelo fato do teste VR medir o raciocínio verbal dos alunos, algo que está bem relacionado com a possível nota média deles.
+
+Essa relação me criou a curiosidade de fazer um teste de correlação entre as duas variáveis, o qual me retornou uma correlação de \~0,25 na escala de Pearson.
+
+```{r}
+mediaescola <- data %>%
+  group_by(school) %>%
+  summarise(avg_normexam = mean(normexam, na.rm = TRUE)) %>%
+  arrange(avg_normexam)
+
+top5 <- mediaescola %>%
+  slice_head(n = 5) %>%
+  bind_rows(mediaescola %>% slice_tail(n = 5))
+
+ggplot(top5, aes(x = reorder(school, avg_normexam), y = avg_normexam, fill = avg_normexam > 0)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "5 Escolas com Maior e Menor Média de Notas (Normexam)", x = "Escola", y = "Média de Pontuação") +
+  theme_minimal() +
+  scale_fill_manual(values = c("red", "green")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+genero_escola <- data %>%
+  group_by(school) %>%
+  summarise(avg_normexam = mean(normexam, na.rm = TRUE), schgend = unique(schgend)) %>%
+  arrange(avg_normexam)
+
+top5genero <- genero_escola %>%
+  slice_head(n = 5) %>%
+  bind_rows(genero_escola %>% slice_tail(n = 5))
+
+top5genero
+
+
+```
+
+Esse gráfico mostra as 5 escolas com maior e menor média de notas e logo em seguida uma tabela que mostra essas 10 escolas e seu gênero. As 5 de baixo são as maiores notas e as 5 de cima as menores.
+
+\newpage
+# Conclusão
+
+### Com base nas 9 variáveis analisadas neste estudo de caso, podemos tirar algumas conclusões importantes sobre o desempenho dos estudantes nas escolas da região central de Londres:
+
+1.  **Desempenho Acadêmico (normexam)**: A variável "normexam" mostrou uma distribuição com variação considerável nas pontuações entre os estudantes, refletindo a diversidade no desempenho acadêmico das escolas. As escolas com maior média de pontuação tendem a ter uma estrutura diferenciada, enquanto as de menor média de pontuação precisam de intervenções para melhorar a qualidade educacional.
+
+2.  **Gênero da Escola (schgend)**: A análise revelou que a variável "schgend" (gênero da escola) impacta diretamente no desempenho dos estudantes. As escolas mistas ("mixed") podem apresentar uma maior diversidade de abordagens pedagógicas, enquanto as escolas exclusivas para meninos ou meninas ("boys" e "girls") podem ter um foco mais especializado no gênero, o que pode afetar o desempenho dos estudantes de forma distinta.
+
+3.   **Faixa de Pontuação de Raciocínio Verbal (vr)**: A relação entre a "vr" e o desempenho no exame ("normexam") mostrou que os estudantes nas faixas superiores de raciocínio verbal tendem a ter melhores desempenhos no exame. Esse achado sugere que intervenções específicas no desenvolvimento do raciocínio verbal podem melhorar o desempenho acadêmico geral.
+
+4.  **Tipo de Escola (type)**: O tipo de escola (mista ou única) não apresenta uma correlação muito forte com o desempenho acadêmico geral, mas pode influenciar o tipo de ambiente de aprendizado e os recursos disponíveis para os estudantes. A comparação entre escolas mistas e únicas sugere que o contexto escolar pode influenciar, mas não é um fator determinante isolado.
+
+5.  **Sexo dos Estudantes (sex)**: A diferença de desempenho entre os sexos foi analisada, e embora a média de desempenho entre meninos e meninas tenha apresentado variações, o desempenho acadêmico foi mais influenciado por outros fatores, como o tipo de escola e a faixa de raciocínio verbal do estudante.
+
+6.   **Média de Pontuação de Entrada (schavg)**: A média de pontuação de entrada das escolas (schavg) foi um indicativo importante do nível geral de desempenho. Escolas com maior média de entrada tendem a ter uma base de alunos com melhores resultados nos exames, o que reflete a seleção do aluno no momento da entrada.
+
+Após esse estudo podemos concluir que o desempenho academico dos estudantes dependem de diversos fatores como o tipo de escola, gênero da escola, raciocínio verbal e outros. É algo muito difícil de relacionar diretamente com apenas uma variável e a que mais se relacionou foi a do teste vr.
